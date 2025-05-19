@@ -13,6 +13,7 @@ PLAYER_SIZE = 50
 # Physics constants
 GRAVITY = 900  # magnitude of gravity force
 IMPULSE_STRENGTH = 300
+HALF_IMPULSE = IMPULSE_STRENGTH / 2
 
 
 class Player:
@@ -46,13 +47,13 @@ class Player:
 
     def handle_input(self, keys):
         if keys[pygame.K_a]:
-            self.body.apply_impulse_at_local_point((-IMPULSE_STRENGTH, 0))
+            self.body.apply_impulse_at_local_point((-HALF_IMPULSE, 0))
         if keys[pygame.K_d]:
             self.body.apply_impulse_at_local_point((IMPULSE_STRENGTH, 0))
         if keys[pygame.K_w]:
-            self.body.apply_impulse_at_local_point((0, -IMPULSE_STRENGTH))
+            self.body.apply_impulse_at_local_point((0, HALF_IMPULSE))
         if keys[pygame.K_s]:
-            self.body.apply_impulse_at_local_point((0, IMPULSE_STRENGTH))
+            self.body.apply_impulse_at_local_point((0, -IMPULSE_STRENGTH))
 
     def start_drag(self, pos):
         """Begin dragging if the position is over the square."""
@@ -61,11 +62,11 @@ class Player:
         self.mouse_body.position = pos
         self.prev_mouse_pos = pos
         # Anchor the drag joint at the clicked position on the square
-        local_anchor = (Vec2d(pos) - self.body.position).rotated(-self.body.angle)
+        local_anchor = (Vec2d(*pos) - self.body.position).rotated(-self.body.angle)
         self.drag_joint = pymunk.PivotJoint(self.mouse_body, self.body,
                                             (0, 0), local_anchor)
         self.drag_joint.max_force = 10000
-        self.space.add(self.drag_joint)
+        self.space.add(self.mouse_body, self.drag_joint)
 
     def update_drag(self, pos, dt):
         if not self.drag_joint:
@@ -80,7 +81,7 @@ class Player:
             return
         # Apply the last velocity to fling the square
         self.body.velocity = self.mouse_body.velocity
-        self.space.remove(self.drag_joint)
+        self.space.remove(self.drag_joint, self.mouse_body)
         self.drag_joint = None
         self.mouse_body.velocity = (0, 0)
 
