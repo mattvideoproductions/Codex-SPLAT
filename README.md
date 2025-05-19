@@ -29,5 +29,23 @@ python game.py
 When running the script a window will appear that can be resized or maximised.
 A red square lives in a small physics environment and can be moved with the
 **WASD** keys. You can also drag it with the left mouse button and release it to
-fling the square across the screen. The square starts inside a boxed-in test
-area so it has a floor and walls to collide with.
+fling the square across the screen.
+
+## Level Files
+
+Level geometry is loaded from JSON (or YAML) files in the `levels/` directory.
+Each level file is an array of segments. Every segment requires two endpoints
+`a` and `b` and can optionally specify `friction`:
+
+```json
+[
+  {"a": [0, 40], "b": [2000, 40]},
+  {"a": [0, 40], "b": [0, 1200]},
+  {"a": [2000, 40], "b": [2000, 1200]},
+  {"a": [0, 1200], "b": [2000, 1200], "friction": 1.5}
+]
+```
+
+Segments are created in the physics space exactly as specified. Create a new
+file following this format and place it inside `levels/` to experiment with your
+own playgrounds.
