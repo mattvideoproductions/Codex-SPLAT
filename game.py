@@ -3,14 +3,17 @@ import pymunk
 from pymunk.vec2d import Vec2d
 import os
 import math
+import json
 
 # Window configuration
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 # World dimensions (level size)
-LEVEL_WIDTH = 800
-LEVEL_HEIGHT = 600
+# Size of the sample level. If you load a custom level this can be adjusted
+# or ignored entirely as the level data controls the playable area.
+LEVEL_WIDTH = 2000
+LEVEL_HEIGHT = 1200
 
 PLAYER_SIZE = 50
 
@@ -107,6 +110,29 @@ def create_test_area(space, width, height):
     return [floor, left, right, ceiling]
 
 
+def load_level(path: str, space: pymunk.Space) -> list[pymunk.Segment]:
+    """Load level segments from a JSON or YAML file."""
+    with open(path, "r") as f:
+        if path.endswith(('.yml', '.yaml')):
+            try:
+                import yaml
+            except ImportError as exc:
+                raise RuntimeError("PyYAML is required to load YAML files") from exc
+            data = yaml.safe_load(f)
+        else:
+            data = json.load(f)
+
+    segments: list[pymunk.Segment] = []
+    for seg in data:
+        a = tuple(seg["a"])
+        b = tuple(seg["b"])
+        shape = pymunk.Segment(space.static_body, a, b, 0)
+        shape.friction = seg.get("friction", 1.0)
+        segments.append(shape)
+    space.add(*segments)
+    return segments
+
+
 def world_to_screen(p: Vec2d, camera: Vec2d, surface: pygame.Surface) -> tuple[int, int]:
     """Convert world coordinates to screen coordinates using a camera offset."""
     x = (p.x - camera.x) + surface.get_width() / 2
@@ -133,9 +159,9 @@ def main():
     # ➊  Create the player **before** you use it
     player = Player(space)
 
-    # ➋  Build the walls
-    # Use the level dimensions for the world boundaries
-    segments = create_test_area(space, LEVEL_WIDTH, LEVEL_HEIGHT)
+    # ➋  Build the level geometry from file
+    level_path = os.path.join(os.path.dirname(__file__), "levels", "sample_level.json")
+    segments = load_level(level_path, space)
 
     # ➌  Now it’s safe to read player.body.position
     camera_pos = Vec2d(*player.body.position)   # centered on the player
