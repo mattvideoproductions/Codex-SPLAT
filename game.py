@@ -11,7 +11,7 @@ SCREEN_HEIGHT = 600
 PLAYER_SIZE = 50
 
 # Physics constants
-GRAVITY = 900
+GRAVITY = 900  # magnitude of gravity force
 IMPULSE_STRENGTH = 300
 
 
@@ -60,7 +60,10 @@ class Player:
             return
         self.mouse_body.position = pos
         self.prev_mouse_pos = pos
-        self.drag_joint = pymunk.PivotJoint(self.mouse_body, self.body, (0, 0), (0, 0))
+        # Anchor the drag joint at the clicked position on the square
+        local_anchor = (Vec2d(pos) - self.body.position).rotated(-self.body.angle)
+        self.drag_joint = pymunk.PivotJoint(self.mouse_body, self.body,
+                                            (0, 0), local_anchor)
         self.drag_joint.max_force = 10000
         self.space.add(self.drag_joint)
 
@@ -109,7 +112,8 @@ def main():
     clock = pygame.time.Clock()
 
     space = pymunk.Space()
-    space.gravity = (0, GRAVITY)
+    # Negative Y is up in this coordinate system, so gravity must be negative
+    space.gravity = (0, -GRAVITY)
 
     # ➊  Create the player **before** you use it
     player = Player(space)
