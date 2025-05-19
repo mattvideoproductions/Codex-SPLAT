@@ -137,6 +137,8 @@ def main():
     running = True
     while running:
         dt = clock.tick(60) / 1000.0
+        if dt <= 0:
+            dt = 1e-6
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
