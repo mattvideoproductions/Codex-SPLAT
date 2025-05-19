@@ -63,14 +63,24 @@ class Player:
         self.prev_mouse_pos = None
 
     def handle_input(self, keys):
+        # Apply impulses using world coordinates so controls remain consistent
+        # regardless of the player's current rotation.
         if keys[pygame.K_a]:
-            self.body.apply_impulse_at_local_point((-HALF_IMPULSE, 0))
+            self.body.apply_impulse_at_world_point(
+                (-HALF_IMPULSE, 0), self.body.position
+            )
         if keys[pygame.K_d]:
-            self.body.apply_impulse_at_local_point((HALF_IMPULSE, 0))
+            self.body.apply_impulse_at_world_point(
+                (HALF_IMPULSE, 0), self.body.position
+            )
         if keys[pygame.K_w]:
-            self.body.apply_impulse_at_local_point((0, HALF_IMPULSE))
+            self.body.apply_impulse_at_world_point(
+                (0, HALF_IMPULSE), self.body.position
+            )
         if keys[pygame.K_s]:
-            self.body.apply_impulse_at_local_point((0, -IMPULSE_STRENGTH))
+            self.body.apply_impulse_at_world_point(
+                (0, -IMPULSE_STRENGTH), self.body.position
+            )
 
     def start_drag(self, pos):
         """Begin dragging if the position is over the square."""
