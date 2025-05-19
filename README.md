@@ -3,7 +3,7 @@
 This repository contains a small physics based prototype using
 [Pygame](https://www.pygame.org/) together with
 [Pymunk](http://www.pymunk.org/). It started as a platformer skeleton but now
-shows a single hexagon that can be moved around with the keyboard or the mouse.
+shows a single circle that can be moved around with the keyboard or the mouse.
 Feel free to extend it further.
 
 ## Requirements
@@ -27,9 +27,9 @@ python game.py
 ```
 
 When running the script a window will appear that can be resized or maximised.
-A red hexagon lives in a small physics environment and can be moved with the
+A red circle lives in a small physics environment and can be moved with the
 **WASD** keys. You can also drag it with the left mouse button and release it to
-fling the hexagon across the screen.
+fling the circle across the screen.
 
 ## Level Files
 
