@@ -7,6 +7,11 @@ import math
 # Window configuration
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+
+# World dimensions (level size)
+LEVEL_WIDTH = 800
+LEVEL_HEIGHT = 600
+
 PLAYER_SIZE = 50
 
 # Physics constants
@@ -23,8 +28,8 @@ class Player:
         mass = 1
         moment = pymunk.moment_for_box(mass, (PLAYER_SIZE, PLAYER_SIZE))
         self.body = pymunk.Body(mass, moment)
-        # Start slightly above the ground
-        self.body.position = (100, SCREEN_HEIGHT - 100)
+        # Start slightly above the ground inside the level bounds
+        self.body.position = (100, LEVEL_HEIGHT - 100)
         self.shape = pymunk.Poly.create_box(self.body, (PLAYER_SIZE, PLAYER_SIZE))
         self.shape.friction = 0.7
         self.shape.color = (255, 0, 0, 255)
@@ -90,7 +95,7 @@ class Player:
 
 
 def create_test_area(space, width, height):
-    """Create a simple boxed area so the square doesn't fall forever."""
+    """Create a boxed area representing the level bounds."""
     body = space.static_body
     floor = pymunk.Segment(body, (0, 40), (width, 40), 0)
     left = pymunk.Segment(body, (0, 40), (0, height), 0)
@@ -129,7 +134,8 @@ def main():
     player = Player(space)
 
     # ➋  Build the walls
-    segments = create_test_area(space, SCREEN_WIDTH, SCREEN_HEIGHT)
+    # Use the level dimensions for the world boundaries
+    segments = create_test_area(space, LEVEL_WIDTH, LEVEL_HEIGHT)
 
     # ➌  Now it’s safe to read player.body.position
     camera_pos = Vec2d(*player.body.position)   # centered on the player
