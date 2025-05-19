@@ -1,6 +1,6 @@
 import pygame
 import pymunk
-from pymunk.pygame_util import from_pygame
+
 from pymunk.vec2d import Vec2d
 import os
 import math
@@ -13,6 +13,7 @@ PLAYER_SIZE = 50
 # Physics constants
 GRAVITY = 900  # magnitude of gravity force
 IMPULSE_STRENGTH = 300
+HALF_IMPULSE = IMPULSE_STRENGTH / 2
 
 
 class Player:
@@ -46,13 +47,13 @@ class Player:
 
     def handle_input(self, keys):
         if keys[pygame.K_a]:
-            self.body.apply_impulse_at_local_point((-IMPULSE_STRENGTH, 0))
+            self.body.apply_impulse_at_local_point((-HALF_IMPULSE, 0))
         if keys[pygame.K_d]:
             self.body.apply_impulse_at_local_point((IMPULSE_STRENGTH, 0))
         if keys[pygame.K_w]:
-            self.body.apply_impulse_at_local_point((0, -IMPULSE_STRENGTH))
+            self.body.apply_impulse_at_local_point((0, HALF_IMPULSE))
         if keys[pygame.K_s]:
-            self.body.apply_impulse_at_local_point((0, IMPULSE_STRENGTH))
+            self.body.apply_impulse_at_local_point((0, -IMPULSE_STRENGTH))
 
     def start_drag(self, pos):
         """Begin dragging if the position is over the square."""
@@ -65,7 +66,7 @@ class Player:
         self.drag_joint = pymunk.PivotJoint(self.mouse_body, self.body,
                                             (0, 0), local_anchor)
         self.drag_joint.max_force = 10000
-        self.space.add(self.drag_joint)
+        self.space.add(self.mouse_body, self.drag_joint)
 
     def update_drag(self, pos, dt):
         if not self.drag_joint:
@@ -80,7 +81,7 @@ class Player:
             return
         # Apply the last velocity to fling the square
         self.body.velocity = self.mouse_body.velocity
-        self.space.remove(self.drag_joint)
+        self.space.remove(self.drag_joint, self.mouse_body)
         self.drag_joint = None
         self.mouse_body.velocity = (0, 0)
 
@@ -103,6 +104,14 @@ def world_to_screen(p: Vec2d, camera: Vec2d, surface: pygame.Surface) -> tuple[i
     x = (p.x - camera.x) + surface.get_width() / 2
     y = surface.get_height() / 2 - (p.y - camera.y)
     return int(x), int(y)
+
+
+def screen_to_world(p: tuple[int, int], camera: Vec2d,
+                    surface: pygame.Surface) -> Vec2d:
+    """Inverse of world_to_screen for translating mouse positions."""
+    x = p[0] - surface.get_width() / 2 + camera.x
+    y = camera.y - (p[1] - surface.get_height() / 2)
+    return Vec2d(x, y)
 
 def main():
     pygame.init()
@@ -132,14 +141,14 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                pos = from_pygame(event.pos, screen)
+                pos = screen_to_world(event.pos, camera_pos, screen)
                 player.start_drag(pos)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 player.end_drag()
             elif event.type == pygame.VIDEORESIZE:
                 screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
 
-        mouse_pos = from_pygame(pygame.mouse.get_pos(), screen)
+        mouse_pos = screen_to_world(pygame.mouse.get_pos(), camera_pos, screen)
         player.update_drag(mouse_pos, dt)
 
         keys = pygame.key.get_pressed()
