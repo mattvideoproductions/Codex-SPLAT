@@ -11,7 +11,7 @@ PLAYER_SIZE = 50
 
 # Physics constants
 GRAVITY = 900  # magnitude of gravity force
-IMPULSE_STRENGTH = 300
+IMPULSE_STRENGTH = 50
 HALF_IMPULSE = IMPULSE_STRENGTH / 2
 
 
@@ -48,7 +48,7 @@ class Player:
         if keys[pygame.K_a]:
             self.body.apply_impulse_at_local_point((-HALF_IMPULSE, 0))
         if keys[pygame.K_d]:
-            self.body.apply_impulse_at_local_point((IMPULSE_STRENGTH, 0))
+            self.body.apply_impulse_at_local_point((HALF_IMPULSE, 0))
         if keys[pygame.K_w]:
             self.body.apply_impulse_at_local_point((0, HALF_IMPULSE))
         if keys[pygame.K_s]:
