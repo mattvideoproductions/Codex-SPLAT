@@ -24,22 +24,32 @@ HALF_IMPULSE = IMPULSE_STRENGTH / 2
 
 
 class Player:
-    """Physics controlled player square."""
+    """Physics controlled player hexagon."""
 
     def __init__(self, space):
         self.space = space
         mass = 1
-        moment = pymunk.moment_for_box(mass, (PLAYER_SIZE, PLAYER_SIZE))
+        # Create a regular hexagon centered on the body origin
+        angle_step = 2 * math.pi / 6
+        radius = PLAYER_SIZE / 2
+        verts = [
+            (
+                math.cos(i * angle_step) * radius,
+                math.sin(i * angle_step) * radius,
+            )
+            for i in range(6)
+        ]
+        moment = pymunk.moment_for_poly(mass, verts)
         self.body = pymunk.Body(mass, moment)
         # Start slightly above the ground inside the level bounds
         self.body.position = (100, LEVEL_HEIGHT - 100)
-        self.shape = pymunk.Poly.create_box(self.body, (PLAYER_SIZE, PLAYER_SIZE))
+        self.shape = pymunk.Poly(self.body, verts)
         self.shape.friction = 0.7
         self.shape.color = (255, 0, 0, 255)
         space.add(self.body, self.shape)
 
         # Sprite setup
-        img_path = os.path.join(os.path.dirname(__file__), "red_square.png")
+        img_path = os.path.join(os.path.dirname(__file__), "red_hexagon.png")
         self.image_orig = pygame.image.load(img_path).convert_alpha()
         self.image_orig = pygame.transform.smoothscale(
             self.image_orig, (PLAYER_SIZE, PLAYER_SIZE)
