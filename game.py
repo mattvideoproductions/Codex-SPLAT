@@ -24,32 +24,24 @@ HALF_IMPULSE = IMPULSE_STRENGTH / 2
 
 
 class Player:
-    """Physics controlled player hexagon."""
+    """Physics controlled player circle."""
 
     def __init__(self, space):
         self.space = space
         mass = 1
-        # Create a regular hexagon centered on the body origin
-        angle_step = 2 * math.pi / 6
+        # Create a circle centered on the body origin
         radius = PLAYER_SIZE / 2
-        verts = [
-            (
-                math.cos(i * angle_step) * radius,
-                math.sin(i * angle_step) * radius,
-            )
-            for i in range(6)
-        ]
-        moment = pymunk.moment_for_poly(mass, verts)
+        moment = pymunk.moment_for_circle(mass, 0, radius)
         self.body = pymunk.Body(mass, moment)
         # Start slightly above the ground inside the level bounds
         self.body.position = (100, LEVEL_HEIGHT - 100)
-        self.shape = pymunk.Poly(self.body, verts)
+        self.shape = pymunk.Circle(self.body, radius)
         self.shape.friction = 0.7
         self.shape.color = (255, 0, 0, 255)
         space.add(self.body, self.shape)
 
         # Sprite setup
-        img_path = os.path.join(os.path.dirname(__file__), "red_hexagon.png")
+        img_path = os.path.join(os.path.dirname(__file__), "red_circle.png")
         self.image_orig = pygame.image.load(img_path).convert_alpha()
         self.image_orig = pygame.transform.smoothscale(
             self.image_orig, (PLAYER_SIZE, PLAYER_SIZE)
@@ -83,12 +75,12 @@ class Player:
             )
 
     def start_drag(self, pos):
-        """Begin dragging if the position is over the square."""
+        """Begin dragging if the position is over the circle."""
         if self.shape.point_query(pos).distance > 0:
             return
         self.mouse_body.position = pos
         self.prev_mouse_pos = pos
-        # Anchor the drag joint at the clicked position on the square
+        # Anchor the drag joint at the clicked position on the circle
         # `pos` is already a Vec2d, so avoid reinitializing to prevent errors
         local_anchor = (pos - self.body.position).rotated(-self.body.angle)
         self.drag_joint = pymunk.PivotJoint(self.mouse_body, self.body,
@@ -110,7 +102,7 @@ class Player:
     def end_drag(self):
         if not self.drag_joint:
             return
-        # Apply the last velocity to fling the square
+        # Apply the last velocity to fling the circle
         self.body.velocity = self.mouse_body.velocity
         self.space.remove(self.drag_joint, self.mouse_body)
         self.drag_joint = None
