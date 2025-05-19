@@ -70,6 +70,9 @@ class Player:
     def update_drag(self, pos, dt):
         if not self.drag_joint:
             return
+        if dt <= 0:
+            # Avoid division by zero if the very first frame has dt == 0
+            dt = 1e-6
         vel = (pos[0] - self.prev_mouse_pos[0], pos[1] - self.prev_mouse_pos[1])
         self.mouse_body.velocity = (vel[0] / dt, vel[1] / dt)
         self.mouse_body.position = pos
