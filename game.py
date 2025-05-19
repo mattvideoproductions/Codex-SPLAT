@@ -61,7 +61,8 @@ class Player:
         self.mouse_body.position = pos
         self.prev_mouse_pos = pos
         # Anchor the drag joint at the clicked position on the square
-        local_anchor = (Vec2d(pos) - self.body.position).rotated(-self.body.angle)
+        # `pos` is already a Vec2d, so avoid reinitializing to prevent errors
+        local_anchor = (pos - self.body.position).rotated(-self.body.angle)
         self.drag_joint = pymunk.PivotJoint(self.mouse_body, self.body,
                                             (0, 0), local_anchor)
         self.drag_joint.max_force = 10000
