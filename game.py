@@ -105,6 +105,16 @@ def world_to_screen(p: Vec2d, camera: Vec2d, surface: pygame.Surface) -> tuple[i
     y = surface.get_height() / 2 - (p.y - camera.y)
     return int(x), int(y)
 
+def screen_to_world(pos: tuple[int, int], camera: Vec2d,
+                    surface: pygame.Surface) -> Vec2d:
+    """Convert screen coordinates to world coordinates using a camera."""
+    x, y = from_pygame(pos, surface)
+    return Vec2d(
+        x - surface.get_width() / 2 + camera.x,
+        y - surface.get_height() / 2 + camera.y,
+    )
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),
@@ -133,14 +143,14 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                pos = from_pygame(event.pos, screen)
+                pos = screen_to_world(event.pos, camera_pos, screen)
                 player.start_drag(pos)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 player.end_drag()
             elif event.type == pygame.VIDEORESIZE:
                 screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
 
-        mouse_pos = from_pygame(pygame.mouse.get_pos(), screen)
+        mouse_pos = screen_to_world(pygame.mouse.get_pos(), camera_pos, screen)
         player.update_drag(mouse_pos, dt)
 
         keys = pygame.key.get_pressed()
