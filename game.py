@@ -215,7 +215,7 @@ def main():
             pygame.draw.line(screen, (0, 0, 0), start, end, 2)
 
         # Draw the player sprite
-        angle_deg = -math.degrees(player.body.angle)
+        angle_deg = math.degrees(player.body.angle)
         player.image = pygame.transform.rotozoom(player.image_orig, angle_deg, 1)
         player.rect = player.image.get_rect()
         player.rect.center = world_to_screen(player.body.position, camera_pos, screen)
