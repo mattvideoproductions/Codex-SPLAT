@@ -62,7 +62,7 @@ class Player:
         self.mouse_body.position = pos
         self.prev_mouse_pos = pos
         # Anchor the drag joint at the clicked position on the square
-        local_anchor = (Vec2d(pos) - self.body.position).rotated(-self.body.angle)
+        local_anchor = (Vec2d(*pos) - self.body.position).rotated(-self.body.angle)
         self.drag_joint = pymunk.PivotJoint(self.mouse_body, self.body,
                                             (0, 0), local_anchor)
         self.drag_joint.max_force = 10000
@@ -105,14 +105,12 @@ def world_to_screen(p: Vec2d, camera: Vec2d, surface: pygame.Surface) -> tuple[i
     y = surface.get_height() / 2 - (p.y - camera.y)
     return int(x), int(y)
 
-
 def screen_to_world(p: tuple[int, int], camera: Vec2d,
                     surface: pygame.Surface) -> Vec2d:
     """Inverse of world_to_screen for translating mouse positions."""
     x = p[0] - surface.get_width() / 2 + camera.x
     y = camera.y - (p[1] - surface.get_height() / 2)
     return Vec2d(x, y)
-
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),
