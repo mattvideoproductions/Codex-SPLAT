@@ -1,5 +1,7 @@
 # Physics Example
 
+> **A MattVidPro AI-coding test** (made with OpenAI Codex). From the [MattVidPro YouTube channel](https://www.youtube.com/@MattVidPro).
+
 This repository contains a small physics based prototype using
 [Pygame](https://www.pygame.org/) together with
 [Pymunk](http://www.pymunk.org/). It started as a platformer skeleton but now
